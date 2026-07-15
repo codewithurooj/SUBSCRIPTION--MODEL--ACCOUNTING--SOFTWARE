@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// Render's free tier spins the backend down after inactivity; waking it
+// back up can take 30-60s, longer than Vercel's default 10s function timeout.
+export const maxDuration = 60;
+
 export async function GET(request: NextRequest) {
   const backendResponse = await fetch(
     `${process.env.BACKEND_API_URL}/api/customers${request.nextUrl.search}`,
