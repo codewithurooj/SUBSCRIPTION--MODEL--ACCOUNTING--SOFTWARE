@@ -1,22 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CustomerForm } from "@/components/customers/CustomerForm";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { CustomerTable, type SortableColumn } from "@/components/customers/CustomerTable";
-import {
-  customerToFormValues,
-  type Customer,
-  type CustomerFormValues,
-} from "@/lib/types/customer";
+import type { Customer } from "@/lib/types/customer";
 
 const PAGE_SIZE = 25;
 
 export default function CustomersPage() {
-  const [isCreateOpen, setCreateOpen] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
-
-  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
-  const [editError, setEditError] = useState<string | null>(null);
+  const router = useRouter();
 
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [total, setTotal] = useState(0);
@@ -51,33 +44,6 @@ export default function CustomersPage() {
     fetchCustomers();
   }, [fetchCustomers]);
 
-  function stripEmptyStrings(values: CustomerFormValues): Record<string, unknown> {
-    const payload: Record<string, unknown> = { ...values };
-    for (const key of Object.keys(payload)) {
-      if (payload[key] === "") delete payload[key];
-    }
-    return payload;
-  }
-
-  async function handleCreate(values: CustomerFormValues) {
-    setCreateError(null);
-
-    const response = await fetch("/api/customers", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(stripEmptyStrings(values)),
-    });
-
-    if (!response.ok) {
-      setCreateError("Could not create the customer. Please check the form and try again.");
-      return;
-    }
-
-    setCreateOpen(false);
-    setPage(1);
-    await fetchCustomers();
-  }
-
   async function handleToggleStatus(customer: Customer) {
     const nextStatus = customer.status === "Active" ? "Inactive" : "Active";
     const response = await fetch(`/api/customers/${customer.id}/status`, {
@@ -88,25 +54,6 @@ export default function CustomersPage() {
     if (response.ok) {
       await fetchCustomers();
     }
-  }
-
-  async function handleEditSubmit(values: CustomerFormValues) {
-    if (!editingCustomer) return;
-    setEditError(null);
-
-    const response = await fetch(`/api/customers/${editingCustomer.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(stripEmptyStrings(values)),
-    });
-
-    if (!response.ok) {
-      setEditError("Could not save changes. Please check the form and try again.");
-      return;
-    }
-
-    setEditingCustomer(null);
-    await fetchCustomers();
   }
 
   function handleSearchChange(value: string) {
@@ -130,13 +77,12 @@ export default function CustomersPage() {
     <div className="p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Customers</h1>
-        <button
-          type="button"
-          onClick={() => setCreateOpen(true)}
+        <Link
+          href="/masters/customers/new"
           className="rounded bg-black px-4 py-2 text-white"
         >
           New Customer
-        </button>
+        </Link>
       </div>
 
       <div className="mt-6">
@@ -149,7 +95,7 @@ export default function CustomersPage() {
           sortBy={sortBy}
           sortOrder={sortOrder}
           onSortChange={handleSortChange}
-          onEdit={(customer) => setEditingCustomer(customer)}
+          onEdit={(customer) => router.push(`/masters/customers/${customer.id}/edit`)}
           onToggleStatus={handleToggleStatus}
         />
 
@@ -177,36 +123,6 @@ export default function CustomersPage() {
           </div>
         )}
       </div>
-
-      {isCreateOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6">
-            <h2 className="mb-4 text-lg font-semibold">New Customer</h2>
-            {createError && <p className="mb-4 text-sm text-red-600">{createError}</p>}
-            <CustomerForm
-              mode="create"
-              onSubmit={handleCreate}
-              onCancel={() => setCreateOpen(false)}
-            />
-          </div>
-        </div>
-      )}
-
-      {editingCustomer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6">
-            <h2 className="mb-4 text-lg font-semibold">Edit Customer</h2>
-            {editError && <p className="mb-4 text-sm text-red-600">{editError}</p>}
-            <CustomerForm
-              mode="edit"
-              customerCode={editingCustomer.customer_code}
-              initialValues={customerToFormValues(editingCustomer)}
-              onSubmit={handleEditSubmit}
-              onCancel={() => setEditingCustomer(null)}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
