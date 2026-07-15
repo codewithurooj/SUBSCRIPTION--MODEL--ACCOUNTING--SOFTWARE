@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: subscription-model-backend
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install .
+    startCommand: alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
