@@ -1,0 +1,385 @@
+openapi: 3.0.3
+info:
+  title: Customers Master API
+  version: "1.1.0"
+  description: >
+    Backend contract for the Customers Master feature (spec.md FR-003–FR-025).
+    Consumed by the Next.js BFF route handlers (frontend/app/api/**), never
+    called directly by the browser. No authentication (removed 2026-07-14 at
+    the client's direction — see plan.md's post-implementation amendment;
+    revisit if/when the client requests an auth feature).
+servers:
+  - url: /api
+
+paths:
+  /customers:
+    get:
+      summary: List customers (paginated, searchable, sortable, filterable) — FR-013, FR-014, FR-015
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Substring match across customer_code, customer_name, contact_person (FR-014)
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [Active, Inactive]
+          description: Optional status filter; omitted = both statuses shown (FR-013)
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [customer_code, customer_name, customer_type, balance_type, status]
+            default: customer_code
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 25
+      responses:
+        "200":
+          description: Paginated customer list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerListResponse"
+    post:
+      summary: Create a new customer — FR-003, FR-004, FR-005
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerCreate"
+      responses:
+        "201":
+          description: Customer created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerRead"
+        "400":
+          description: Validation error (missing required field, invalid enum, negative amount, non-ISO currency, duplicate tax_registration_no)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+
+  /customers/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get a single customer — FR-016
+      responses:
+        "200":
+          description: Customer detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerRead"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      summary: Edit an existing customer — FR-017. id, customer_code, opening_balance, created_at are rejected/ignored if present with a different value (FR-006, FR-024).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerUpdate"
+      responses:
+        "200":
+          description: Updated customer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerRead"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /customers/{id}/status:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    patch:
+      summary: Deactivate or reactivate a customer — FR-018. No DELETE endpoint exists anywhere in this API (FR-019).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatusUpdateRequest"
+      responses:
+        "200":
+          description: Status updated; all other fields unchanged
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerRead"
+        "400":
+          description: Invalid status value
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  responses:
+    NotFound:
+      description: Customer does not exist
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+
+    CustomerType:
+      type: string
+      enum: [Individual, Company]
+
+    BalanceType:
+      type: string
+      enum: [Debit, Credit]
+
+    CustomerStatus:
+      type: string
+      enum: [Active, Inactive]
+
+    CustomerCreate:
+      type: object
+      required: [customer_name, customer_type, opening_balance, balance_type, currency]
+      properties:
+        customer_name:
+          type: string
+          maxLength: 150
+        contact_person:
+          type: string
+          maxLength: 100
+          nullable: true
+        mobile:
+          type: string
+          maxLength: 20
+          nullable: true
+        phone:
+          type: string
+          maxLength: 20
+          nullable: true
+        email:
+          type: string
+          format: email
+          maxLength: 150
+          nullable: true
+        website:
+          type: string
+          maxLength: 150
+          nullable: true
+        tax_registration_no:
+          type: string
+          maxLength: 50
+          nullable: true
+        customer_type:
+          $ref: "#/components/schemas/CustomerType"
+        opening_balance:
+          type: string
+          description: Decimal string, 2 places, >= 0 (e.g. "0.00")
+          example: "0.00"
+        balance_type:
+          $ref: "#/components/schemas/BalanceType"
+        credit_limit:
+          type: string
+          nullable: true
+          description: Decimal string, 2 places, >= 0
+          example: "5000.00"
+        payment_terms:
+          type: integer
+          nullable: true
+          minimum: 0
+        currency:
+          type: string
+          maxLength: 10
+          description: Must be one of the curated ISO 4217 codes (see research.md #4)
+          example: "AED"
+        status:
+          $ref: "#/components/schemas/CustomerStatus"
+          default: Active
+        notes:
+          type: string
+          nullable: true
+
+    CustomerUpdate:
+      type: object
+      description: Same shape as CustomerCreate minus customer_code/opening_balance/id/created_at, all fields optional (partial update)
+      properties:
+        customer_name:
+          type: string
+          maxLength: 150
+        contact_person:
+          type: string
+          maxLength: 100
+          nullable: true
+        mobile:
+          type: string
+          maxLength: 20
+          nullable: true
+        phone:
+          type: string
+          maxLength: 20
+          nullable: true
+        email:
+          type: string
+          format: email
+          maxLength: 150
+          nullable: true
+        website:
+          type: string
+          maxLength: 150
+          nullable: true
+        tax_registration_no:
+          type: string
+          maxLength: 50
+          nullable: true
+        customer_type:
+          $ref: "#/components/schemas/CustomerType"
+        balance_type:
+          $ref: "#/components/schemas/BalanceType"
+        credit_limit:
+          type: string
+          nullable: true
+        payment_terms:
+          type: integer
+          nullable: true
+          minimum: 0
+        currency:
+          type: string
+          maxLength: 10
+        status:
+          $ref: "#/components/schemas/CustomerStatus"
+        notes:
+          type: string
+          nullable: true
+
+    StatusUpdateRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: "#/components/schemas/CustomerStatus"
+
+    CustomerRead:
+      type: object
+      properties:
+        id:
+          type: integer
+        customer_code:
+          type: string
+          example: "CUS0001"
+        customer_name:
+          type: string
+        contact_person:
+          type: string
+          nullable: true
+        mobile:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        website:
+          type: string
+          nullable: true
+        tax_registration_no:
+          type: string
+          nullable: true
+        customer_type:
+          $ref: "#/components/schemas/CustomerType"
+        opening_balance:
+          type: string
+          example: "0.00"
+        balance_type:
+          $ref: "#/components/schemas/BalanceType"
+        credit_limit:
+          type: string
+          nullable: true
+        payment_terms:
+          type: integer
+          nullable: true
+        currency:
+          type: string
+        status:
+          $ref: "#/components/schemas/CustomerStatus"
+        notes:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CustomerListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CustomerRead"
+        total:
+          type: integer
+        page:
+          type: integer
+        page_size:
+          type: integer
