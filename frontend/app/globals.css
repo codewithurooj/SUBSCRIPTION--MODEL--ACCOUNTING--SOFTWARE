@@ -1,8 +1,34 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Ledger Ink theme — see NavGroup/Sidebar/CustomerForm for usage */
+  --color-ink-950: #10172a;
+  --color-ink-900: #161f38;
+  --color-ink-800: #212c4a;
+  --color-ink-700: #374264;
+  --color-ink-500: #5b6685;
+
+  --color-paper-50: #faf7f0;
+  --color-paper-100: #f3eee3;
+  --color-paper-200: #e8e0cf;
+  --color-paper-300: #d9cdb0;
+  --color-paper-text: #e8e4dc;
+
+  --color-gold-400: #d9b76a;
+  --color-gold-500: #c9a24b;
+  --color-gold-600: #b48a38;
+  --color-gold-700: #8f6c28;
+
+  --color-emerald-600: #2f6b4f;
+  --color-emerald-700: #24543e;
+
+  --color-rust-600: #b3452c;
+  --color-rust-700: #8f3521;
+
+  --color-text: #1c1917;
+
+  --background: var(--color-paper-50);
+  --foreground: var(--color-text);
 }
 
 @theme inline {
@@ -10,17 +36,33 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-ink-950: var(--color-ink-950);
+  --color-ink-900: var(--color-ink-900);
+  --color-ink-800: var(--color-ink-800);
+  --color-ink-700: var(--color-ink-700);
+  --color-ink-500: var(--color-ink-500);
+
+  --color-paper-50: var(--color-paper-50);
+  --color-paper-100: var(--color-paper-100);
+  --color-paper-200: var(--color-paper-200);
+  --color-paper-300: var(--color-paper-300);
+  --color-paper-text: var(--color-paper-text);
+
+  --color-gold-400: var(--color-gold-400);
+  --color-gold-500: var(--color-gold-500);
+  --color-gold-600: var(--color-gold-600);
+  --color-gold-700: var(--color-gold-700);
+
+  --color-emerald-600: var(--color-emerald-600);
+  --color-emerald-700: var(--color-emerald-700);
+
+  --color-rust-600: var(--color-rust-600);
+  --color-rust-700: var(--color-rust-700);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }

@@ -16,7 +16,11 @@ export function CustomerStatusToggle({ customer, onToggle }: CustomerStatusToggl
     <button
       type="button"
       onClick={() => onToggle(customer)}
-      className="text-sm underline"
+      className={
+        isActive
+          ? "text-sm font-medium text-rust-700 hover:text-rust-600 hover:underline"
+          : "text-sm font-medium text-emerald-700 hover:text-emerald-600 hover:underline"
+      }
     >
       {isActive ? "Deactivate" : "Reactivate"}
     </button>

@@ -76,16 +76,19 @@ export default function CustomersPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Customers</h1>
+        <div>
+          <p className="text-xs font-semibold tracking-widest text-gold-600 uppercase">Masters</p>
+          <h1 className="mt-1 text-2xl font-semibold">Customers</h1>
+        </div>
         <Link
           href="/masters/customers/new"
-          className="rounded bg-black px-4 py-2 text-white"
+          className="rounded bg-gold-500 px-4 py-2 text-sm font-semibold text-ink-950 shadow-sm transition-colors hover:bg-gold-600"
         >
           New Customer
         </Link>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 rounded-lg border border-paper-300 bg-white p-4 shadow-sm">
         <CustomerTable
           customers={customers}
           searchValue={search}
@@ -100,23 +103,23 @@ export default function CustomersPage() {
         />
 
         {total > PAGE_SIZE && (
-          <div className="mt-4 flex items-center gap-2">
+          <div className="mt-4 flex items-center gap-3 text-sm">
             <button
               type="button"
               disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="rounded border px-3 py-1 disabled:opacity-50"
+              className="rounded border border-paper-300 px-3 py-1 hover:bg-paper-100 disabled:opacity-40 disabled:hover:bg-transparent"
             >
               Previous
             </button>
-            <span>
+            <span className="text-ink-500">
               Page {page} of {totalPages}
             </span>
             <button
               type="button"
               disabled={page >= totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="rounded border px-3 py-1 disabled:opacity-50"
+              className="rounded border border-paper-300 px-3 py-1 hover:bg-paper-100 disabled:opacity-40 disabled:hover:bg-transparent"
             >
               Next
             </button>

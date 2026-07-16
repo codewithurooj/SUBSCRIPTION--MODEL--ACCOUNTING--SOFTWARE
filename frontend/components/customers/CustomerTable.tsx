@@ -57,7 +57,7 @@ export function CustomerTable({
           placeholder="Search customers..."
           value={searchValue}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="rounded border px-3 py-2"
+          className="rounded border border-paper-300 px-3 py-2 text-sm focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
         />
         <div>
           <label htmlFor="status-filter" className="sr-only">
@@ -68,7 +68,7 @@ export function CustomerTable({
             aria-label="Status filter"
             value={statusFilter}
             onChange={(e) => onStatusFilterChange(e.target.value as "" | "Active" | "Inactive")}
-            className="rounded border px-3 py-2"
+            className="rounded border border-paper-300 px-3 py-2 text-sm focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
           >
             <option value="">All statuses</option>
             <option value="Active">Active only</option>
@@ -77,22 +77,26 @@ export function CustomerTable({
         </div>
       </div>
 
-      <table className="w-full border-collapse text-left">
+      <table className="w-full border-collapse text-left text-sm">
         <thead>
-          <tr>
+          <tr className="bg-paper-100">
             {COLUMNS.map((col) => (
-              <th key={col.key} className="border-b p-2">
+              <th key={col.key} className="border-b border-paper-300 p-2">
                 <button
                   type="button"
                   onClick={() => handleHeaderClick(col.key)}
-                  className="font-medium"
+                  className="font-semibold text-ink-700 hover:text-gold-700"
                 >
                   {col.label}
-                  {sortBy === col.key && (sortOrder === "asc" ? " ▲" : " ▼")}
+                  {sortBy === col.key && (
+                    <span className="text-gold-600"> {sortOrder === "asc" ? "▲" : "▼"}</span>
+                  )}
                 </button>
               </th>
             ))}
-            {(onEdit || onToggleStatus) && <th className="border-b p-2">Actions</th>}
+            {(onEdit || onToggleStatus) && (
+              <th className="border-b border-paper-300 p-2 font-semibold text-ink-700">Actions</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -100,27 +104,39 @@ export function CustomerTable({
             <tr>
               <td
                 colSpan={COLUMNS.length + (onEdit || onToggleStatus ? 1 : 0)}
-                className="border-b p-6 text-center text-gray-500"
+                className="border-b border-paper-200 p-6 text-center text-ink-500"
               >
                 No customers found.
               </td>
             </tr>
           ) : (
             customers.map((customer) => (
-              <tr key={customer.id}>
-                <td className="border-b p-2">{customer.customer_code}</td>
-                <td className="border-b p-2">{customer.customer_name}</td>
-                <td className="border-b p-2">{customer.customer_type}</td>
-                <td className="border-b p-2">{customer.balance_type}</td>
-                <td className="border-b p-2">{customer.status}</td>
+              <tr key={customer.id} className="hover:bg-paper-100/60">
+                <td className="border-b border-paper-200 p-2 font-mono text-ink-700">
+                  {customer.customer_code}
+                </td>
+                <td className="border-b border-paper-200 p-2">{customer.customer_name}</td>
+                <td className="border-b border-paper-200 p-2">{customer.customer_type}</td>
+                <td className="border-b border-paper-200 p-2">{customer.balance_type}</td>
+                <td className="border-b border-paper-200 p-2">
+                  <span
+                    className={
+                      customer.status === "Active"
+                        ? "inline-block rounded-full bg-emerald-600/10 px-2 py-0.5 text-xs font-semibold text-emerald-700"
+                        : "inline-block rounded-full bg-rust-600/10 px-2 py-0.5 text-xs font-semibold text-rust-700"
+                    }
+                  >
+                    {customer.status}
+                  </span>
+                </td>
                 {(onEdit || onToggleStatus) && (
-                  <td className="border-b p-2">
-                    <div className="flex gap-2">
+                  <td className="border-b border-paper-200 p-2">
+                    <div className="flex gap-3">
                       {onEdit && (
                         <button
                           type="button"
                           onClick={() => onEdit(customer)}
-                          className="text-sm underline"
+                          className="text-sm font-medium text-gold-700 hover:text-gold-600 hover:underline"
                         >
                           Edit
                         </button>

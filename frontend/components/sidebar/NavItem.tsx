@@ -19,8 +19,8 @@ export function NavItem({ item }: NavItemProps) {
         aria-current={isActive ? "page" : undefined}
         className={
           isActive
-            ? "block px-4 py-1.5 pl-8 text-sm font-semibold text-blue-600"
-            : "block px-4 py-1.5 pl-8 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+            ? "block border-l-2 border-gold-500 bg-ink-900 px-4 py-1.5 pl-[1.875rem] text-sm font-semibold text-gold-400"
+            : "block border-l-2 border-transparent px-4 py-1.5 pl-[1.875rem] text-sm text-paper-text/70 hover:border-ink-700 hover:bg-ink-900 hover:text-paper-text"
         }
       >
         {item.label}
