@@ -104,7 +104,7 @@ export function CustomerForm({
   const isEdit = mode === "edit";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} autoComplete="off" className="space-y-4">
       {isEdit && (
         <div>
           <label className="block text-sm font-medium text-ink-700">Customer code</label>
@@ -226,6 +226,7 @@ export function CustomerForm({
         </label>
         <input
           id="opening_balance"
+          autoComplete="off"
           value={values.opening_balance}
           onChange={(e) => update("opening_balance", e.target.value)}
           readOnly={isEdit}
@@ -258,6 +259,7 @@ export function CustomerForm({
         </label>
         <input
           id="credit_limit"
+          autoComplete="off"
           value={values.credit_limit}
           onChange={(e) => update("credit_limit", e.target.value)}
           className="mt-1 w-full rounded border border-paper-300 px-3 py-2 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
@@ -271,6 +273,7 @@ export function CustomerForm({
         </label>
         <input
           id="payment_terms"
+          autoComplete="off"
           value={values.payment_terms}
           onChange={(e) => update("payment_terms", e.target.value)}
           className="mt-1 w-full rounded border border-paper-300 px-3 py-2 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
