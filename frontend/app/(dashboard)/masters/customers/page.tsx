@@ -75,7 +75,7 @@ export default function CustomersPage() {
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold tracking-widest text-gold-600 uppercase">Masters</p>
           <h1 className="mt-1 text-2xl font-semibold">Customers</h1>

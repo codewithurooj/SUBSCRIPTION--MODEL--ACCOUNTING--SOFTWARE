@@ -51,13 +51,13 @@ export function CustomerTable({
 
   return (
     <div>
-      <div className="mb-4 flex gap-4">
+      <div className="mb-4 flex flex-wrap gap-4">
         <input
           role="searchbox"
           placeholder="Search customers..."
           value={searchValue}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="rounded border border-paper-300 px-3 py-2 text-sm focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none"
+          className="w-full rounded border border-paper-300 px-3 py-2 text-sm focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:outline-none sm:w-auto"
         />
         <div>
           <label htmlFor="status-filter" className="sr-only">
@@ -77,7 +77,8 @@ export function CustomerTable({
         </div>
       </div>
 
-      <table className="w-full border-collapse text-left text-sm">
+      <div className="overflow-x-auto">
+      <table className="w-full min-w-[640px] border-collapse text-left text-sm">
         <thead>
           <tr className="bg-paper-100">
             {COLUMNS.map((col) => (
@@ -152,6 +153,7 @@ export function CustomerTable({
           )}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
