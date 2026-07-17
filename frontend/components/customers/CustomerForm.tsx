@@ -328,7 +328,7 @@ export function CustomerForm({
         />
       </div>
 
-      <div className="flex gap-2 pt-2">
+      <div className="flex items-center gap-3 pt-2">
         <button
           type="submit"
           disabled={submitting}
@@ -340,10 +340,16 @@ export function CustomerForm({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded border border-paper-300 px-4 py-2 text-sm font-medium text-ink-700 hover:bg-paper-100"
+            disabled={submitting}
+            className="rounded border border-paper-300 px-4 py-2 text-sm font-medium text-ink-700 hover:bg-paper-100 disabled:opacity-50"
           >
             Cancel
           </button>
+        )}
+        {submitting && (
+          <p className="text-sm text-ink-500">
+            This can take up to a minute if the server has been idle.
+          </p>
         )}
       </div>
     </form>
