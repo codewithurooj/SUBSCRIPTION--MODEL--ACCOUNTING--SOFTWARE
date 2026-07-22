@@ -1,0 +1,10 @@
+.venv
+.env
+.env.example
+.pytest_cache
+.ruff_cache
+.coverage
+__pycache__
+*.pyc
+tests
+subscription_model_backend.egg-info
